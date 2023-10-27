@@ -4,6 +4,7 @@ const playerActionUp = document.querySelector('#up');
 const playerActionLeft = document.querySelector('#left');
 const playerActionRight = document.querySelector('#right');
 const playerActionDown = document.querySelector('#down');
+const livesSpan = document.querySelector('#lives')
 const playerActions = {
     'ArrowUp': moveUp,
     'ArrowDown': moveDown,
@@ -70,6 +71,8 @@ function startGame() {
     game.font = elementsSize + 'px Verdana';
     game.textAlign = 'center';
 
+    showLives();
+    
     const map = maps[level];
 
     if(!map) {
@@ -191,4 +194,14 @@ function moveDown() {
         playerPosition.x += elementsSize;
         startGame();
     }
+}
+
+
+// Funciones de manipulacion del DOM
+function showLives() {
+    livesSpan.innerHTML = emojis['HEART'].repeat(lives); // <-- repeat  es un método de las cadenas de texto en JavaScript que se utiliza para concatenar una cadena repetidas veces
+    
+    //   const heartsArray = Array(lives).fill(emojis['HEART']); // [1,2,3]             <------
+    //   spanLives.innerHTML = "";   <-- Esto es para limpiar el span                <-----        Forma de JuanDc
+    //   heartsArray.forEach(heart => spanLives.append(heart));                         <------
 }
