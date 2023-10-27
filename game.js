@@ -14,11 +14,19 @@ const playerPosition = {
     x: undefined,
     y: undefined,
 }
+const giftPosition = {
+    x: undefined,
+    y: undefined,
+}
+let bombsPosition = []
 let canvasSize;
 let elementsSize;
+let level = 0;
+let lives = 3;
 
 
 
+// Escuchadores de eventos
 window.addEventListener('load', renderCanvasSize);
 window.addEventListener('resize', renderCanvasSize);
 // Añade un event listener para el evento 'keydown' en el objeto window
@@ -40,6 +48,7 @@ playerActionDown.addEventListener('click', moveDown);
 
 
 
+// Funcion para renderizar el size del canvas
 function renderCanvasSize() {
     if (window.innerHeight > window.innerWidth) {
         canvasSize = window.innerWidth * 0.78;
@@ -56,14 +65,23 @@ function renderCanvasSize() {
 }
 
 
+// Funcion gigante para dar inicio al juego
 function startGame() {
     game.font = elementsSize + 'px Verdana';
     game.textAlign = 'center';
 
-    const map = maps[0];
+    const map = maps[level];
+
+    if(!map) {
+        gameWin();
+        return;
+    }
+
     const mapRows = map.trim().split('\n');  // <-- trim sirve para quitar strings vacios, y split para separar por strings
     const mapRowsColumns = mapRows.map(value => value.trim().split(''));
     
+    bombsPosition = [];  // <--- volvemos a crear el array para que se 'resetee' o para que se limpie y no se dupliquen los datos
+
     game.clearRect(0, 0, canvasSize, canvasSize)
 
     mapRowsColumns.forEach((row, rowIndex) => {
@@ -77,8 +95,16 @@ function startGame() {
                     playerPosition.x = positionX;                   // condicional para saber si ya no tiene undefined nuestro objeto
                     playerPosition.y = positionY;                   // de playerPosition
                 }
-            }
-
+            } else if (column == 'I') {
+                giftPosition.x = positionX;
+                giftPosition.y = positionY;
+            } else if (column == 'X') {
+                bombsPosition.push({
+                    x: positionX,
+                    y: positionY,
+                })
+            }   
+            
             game.fillText(emoji, positionY, positionX);
         });
     });
@@ -86,16 +112,56 @@ function startGame() {
 }
 
 
-// Funcion para dibujar al jugador
+// Funcion para dibujar al jugador y detectar colisiones
 function drawPlayer() {
+    const giftColissionX = playerPosition.x.toFixed(3) == giftPosition.x.toFixed(3); // variables para detectar si se cumple la colision
+    const giftColissionY = playerPosition.y.toFixed(3) == giftPosition.y.toFixed(3); // el toFixed sirve para limitar los numeros decimales
+
+    if (giftColissionX && giftColissionY) {
+        levelChange();
+    }
+
+    const bombColission = bombsPosition.find(bomb => {
+        const bombColissionX = bomb.x.toFixed(3) == playerPosition.x.toFixed(3) ;
+        const bombColissionY = bomb.y.toFixed(3) == playerPosition.y.toFixed(3);
+        return bombColissionX && bombColissionY
+    })
+
+    if (bombColission) {
+        liveLost();
+    }
+
     game.fillText(emojis['PLAYER'], playerPosition.y, playerPosition.x);
 }
 
 
-// Funciones para delimitar el canvas y que el player no se salga
+// Funciones para cambiar nivel, o por si ganaste o perdiste
+function levelChange() {
+    level ++;
+    startGame();
+}
 
+function gameWin() {
+    console.log('ganaste');
+}
+
+function liveLost() {
+    playerPosition.x = undefined;
+    playerPosition.y = undefined;
+    lives --;
+
+    if(lives <= 0) {
+        level = 0;
+        lives = 3;
+    }
+
+    startGame();
+}
+
+
+// Funciones para delimitar el canvas y que el player no se salga, y de movimiento del jugador
 function moveUp() {
-    if ((playerPosition.x - elementsSize) < elementsSize) {
+    if ((playerPosition.x - elementsSize) < elementsSize - 10) {
         return
     } else {
         playerPosition.x -= elementsSize;
@@ -103,7 +169,7 @@ function moveUp() {
     }
 }
 function moveLeft() {
-    if ((playerPosition.y - elementsSize) < elementsSize) {
+    if ((playerPosition.y - elementsSize) < elementsSize - 1) {
         return
     } else {
         playerPosition.y -= elementsSize;
