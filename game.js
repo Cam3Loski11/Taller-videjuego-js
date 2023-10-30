@@ -1,10 +1,14 @@
 const canvas = document.querySelector('#game');
 const game = canvas.getContext('2d');
+
 const playerActionUp = document.querySelector('#up');
 const playerActionLeft = document.querySelector('#left');
 const playerActionRight = document.querySelector('#right');
 const playerActionDown = document.querySelector('#down');
-const livesSpan = document.querySelector('#lives')
+
+const livesSpan = document.querySelector('#lives');
+const timeSpan = document.querySelector('#time');
+
 const playerActions = {
     'ArrowUp': moveUp,
     'ArrowDown': moveDown,
@@ -14,14 +18,20 @@ const playerActions = {
 const playerPosition = {
     x: undefined,
     y: undefined,
-}
+};
 const giftPosition = {
     x: undefined,
     y: undefined,
-}
-let bombsPosition = []
+};
+let bombsPosition = [];
+
 let canvasSize;
 let elementsSize;
+
+let timeStart;
+let timePlayer;
+let timeInterval;
+
 let level = 0;
 let lives = 3;
 
@@ -78,6 +88,11 @@ function startGame() {
     if(!map) {
         gameWin();
         return;
+    }
+
+    if(!timeStart) {
+        timeStart = Date.now();
+        timeInterval = setInterval(showTime, 100); // <-- cada 100 milisegundos no segundos
     }
 
     const mapRows = map.trim().split('\n');  // <-- trim sirve para quitar strings vacios, y split para separar por strings
@@ -145,7 +160,7 @@ function levelChange() {
 }
 
 function gameWin() {
-    console.log('ganaste');
+    clearInterval(timeInterval);
 }
 
 function liveLost() {
@@ -156,6 +171,7 @@ function liveLost() {
     if(lives <= 0) {
         level = 0;
         lives = 3;
+        timeStart = undefined;
     }
 
     startGame();
@@ -205,3 +221,10 @@ function showLives() {
     //   spanLives.innerHTML = "";   <-- Esto es para limpiar el span                <-----        Forma de JuanDc
     //   heartsArray.forEach(heart => spanLives.append(heart));                         <------
 }
+
+function showTime() {
+    timeSpan.innerHTML = Date.now() - timeStart;
+}
+
+
+//Local storage para guardar el record del jugador
