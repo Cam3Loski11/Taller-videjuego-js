@@ -8,6 +8,10 @@ const playerActionDown = document.querySelector('#down');
 
 const livesSpan = document.querySelector('#lives');
 const timeSpan = document.querySelector('#time');
+const recordSpan = document.querySelector('#record');
+const recordSpanText = document.querySelector('#recordText');
+
+
 
 const playerActions = {
     'ArrowUp': moveUp,
@@ -34,6 +38,7 @@ let timeInterval;
 
 let level = 0;
 let lives = 3;
+
 
 
 
@@ -93,7 +98,9 @@ function startGame() {
     if(!timeStart) {
         timeStart = Date.now();
         timeInterval = setInterval(showTime, 100); // <-- cada 100 milisegundos no segundos
+        setRecord();
     }
+
 
     const mapRows = map.trim().split('\n');  // <-- trim sirve para quitar strings vacios, y split para separar por strings
     const mapRowsColumns = mapRows.map(value => value.trim().split(''));
@@ -161,6 +168,24 @@ function levelChange() {
 
 function gameWin() {
     clearInterval(timeInterval);
+    recordLogic();
+}
+
+function recordLogic() {
+    const timeRecord = localStorage.getItem('storageTime');
+    const playerTime = Date.now() - timeStart;
+
+    if(timeRecord) {
+        if (timeRecord >= playerTime) {
+            localStorage.setItem('storageTime', playerTime);
+            recordSpanText.innerHTML = 'Superaste el record';
+        } else {
+            recordSpanText.innerHTML = 'No superaste el record';
+        }
+    } else {
+        localStorage.setItem('storageTime', playerTime);
+        recordSpanText.innerHTML = 'Bien hecho, trata de superar ese record!'
+    }
 }
 
 function liveLost() {
@@ -223,8 +248,9 @@ function showLives() {
 }
 
 function showTime() {
-    timeSpan.innerHTML = Date.now() - timeStart;
+    timeSpan.innerHTML = Date.now() - timeStart; // <-- esto nos da el tiempo que se demora el jugador en completar el juego
 }
 
-
-//Local storage para guardar el record del jugador
+function setRecord() {
+    recordSpan.innerHTML = localStorage.getItem('storageTime');
+}
