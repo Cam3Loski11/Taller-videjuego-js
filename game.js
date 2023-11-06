@@ -8,9 +8,11 @@ const playerActionDown = document.querySelector('#down');
 
 const livesSpan = document.querySelector('#lives');
 const timeSpan = document.querySelector('#time');
-const recordSpan = document.querySelector('#record');
+const recordSpan = document.querySelector('.record');
 const recordSpanText = document.querySelector('#recordText');
 
+const screenRestartGame = document.querySelector('#restartGameScreen')
+const restartButton = document.querySelector('#restartButton')
 
 
 const playerActions = {
@@ -62,6 +64,7 @@ playerActionLeft.addEventListener('click', moveLeft);
 playerActionRight.addEventListener('click', moveRight);
 playerActionDown.addEventListener('click', moveDown);
 
+restartButton.addEventListener('click', reloadGame);
 
 
 // Funcion para renderizar el size del canvas
@@ -97,6 +100,7 @@ function startGame() {
     const map = maps[level];
 
     if(!map) {
+        screenRestartGame.classList.toggle('inactive');
         gameWin();
         return;
     }
@@ -175,6 +179,9 @@ function levelChange() {
 function gameWin() {
     clearInterval(timeInterval);
     recordLogic();
+    if(!restartButton.addEventListener){
+        reloadGame();
+    }    
 }
 
 function recordLogic() {
@@ -259,4 +266,11 @@ function showTime() {
 
 function setRecord() {
     recordSpan.innerHTML = localStorage.getItem('storageTime');
+}
+
+
+// Funciones para mostrar la pantalla de restart
+
+function reloadGame() {
+    location.reload()
 }
